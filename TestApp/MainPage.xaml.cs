@@ -70,7 +70,6 @@ namespace TestApp
 
             public double Height => Content.ActualHeight;
 
-            public double FontWeight { get; set; } = 300;
             public double FontSize { get; set; }
             public CommentPresenter.Baseline Baseline { get; set; }
             public CommentPresenter.FontKind FontKind { get; set; }
@@ -173,7 +172,7 @@ namespace TestApp
                 tb.Text = text;
                 tb.FontSize = FontSize;
                 tb.FontFamily = new FontFamily("Arial");
-                tb.FontWeight = new Windows.UI.Text.FontWeight() { Weight= (ushort)FontWeight };
+                tb.FontWeight = new Windows.UI.Text.FontWeight() { Weight= (ushort)600 };
                 tb.IsHitTestVisible = false;
                 return tb;
             }

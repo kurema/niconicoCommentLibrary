@@ -64,7 +64,6 @@ namespace NiconicoComment
             double Width { get; }
             double Height { get; }
             FontKind FontKind { get; set; }
-            double FontWeight { get; set; }
             double FontSize { get; set; }
             Size MeasureText(Comment comment);
             void FillText(Comment comment, Coordinate coord, Color color,bool overFlow);
@@ -113,6 +112,8 @@ namespace NiconicoComment
         public RelativeValue FontSizeSmall = new RelativeValue(18);
         public RelativeValue FontSizeBig = new RelativeValue(45);
 
+        public double CommentDuration=5.0;
+
         public static void SetFontSizeRelative(ref Canvas canvas,RelativeValue size)
         {
             canvas.FontSize = size.GetActual(canvas);
@@ -133,12 +134,11 @@ namespace NiconicoComment
             SetFontSizeRelative(ref canvas, FontSizeDefault);
             var time = video.CurrentSecond;
             canvas.FontKind = FontKind.Default;
-            canvas.FontWeight = 600;
 
             var RangesTop = new List<Range>();
             var RangesBottom = new List<Range>();
 
-            double commentDuration = 5.0;
+            double commentDuration = this.CommentDuration;
             var operatedComments = new List<CommentInformation>();
 
             foreach (var comment in Comments)
@@ -158,17 +158,14 @@ namespace NiconicoComment
                 if (ContainsCommand(mails, "mincho"))
                 {
                     canvas.FontKind = FontKind.Mincho;
-                    canvas.FontWeight = 300;
                 }
                 else if (ContainsCommand(mails, "gothic"))
                 {
                     canvas.FontKind = FontKind.Gothic;
-                    canvas.FontWeight = 300;
                 }
                 else
                 {
                     canvas.FontKind = FontKind.Default;
-                    canvas.FontWeight = 600;
                 }
 
                 var r = new Coordinate();
