@@ -17,16 +17,16 @@ using Windows.UI.Xaml.Navigation;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x411 を参照してください
 
-namespace TestApp
+namespace NiconicoApp
 {
     /// <summary>
     /// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
     /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class VideoPage : Page
     {
         private DispatcherTimer _timer;
 
-        public MainPage()
+        public VideoPage()
         {
             this.InitializeComponent();
 
