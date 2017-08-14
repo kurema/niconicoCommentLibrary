@@ -5,9 +5,9 @@ using NiconicoComment.Primitive;
 
 namespace NiconicoComment
 {
-    public class CommentBuffer : CommentPresenter.Canvas
+    public class CommentBuffer : CommentPresenter.ICanvas
     {
-        public interface CanvasBuffered
+        public interface ICanvasBuffered
         {
             double Width { get; }
             double Height { get; }
@@ -30,7 +30,7 @@ namespace NiconicoComment
             public bool OverFlow;
         }
 
-        public CanvasBuffered Content { get; set; }
+        public ICanvasBuffered Content { get; set; }
 
         public double Width => Content.Width;
 

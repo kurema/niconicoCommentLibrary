@@ -20,7 +20,7 @@ namespace NiconicoComment
         }
         public class RelativeValue
         {
-            public RelativeValue(double actual,Canvas canvas)
+            public RelativeValue(double actual,ICanvas canvas)
             {
                 _Relative = GetRelativeSize(actual, canvas);
                 Unset = false;
@@ -39,13 +39,34 @@ namespace NiconicoComment
             public double Relative { get { return _Relative; } set { _Relative = value; Unset = false; } }
             private double _Relative;
             public bool Unset { get; private set; } 
-            public double GetActual(Canvas canvas)
+            public double GetActual(ICanvas canvas)
             {
                 return GetActualSize(Relative, canvas);
             }
-            public void SetActual(double actual,Canvas canvas)
+            public void SetActual(double actual,ICanvas canvas)
             {
                 this.Relative = GetRelativeSize(actual, canvas);
+            }
+
+            public static RelativeValue operator +(RelativeValue a,RelativeValue b)
+            {
+                return new RelativeValue(a.Relative + b.Relative);
+            }
+            public static RelativeValue operator -(RelativeValue a, RelativeValue b)
+            {
+                return new RelativeValue(a.Relative - b.Relative);
+            }
+            public static RelativeValue operator *(RelativeValue a, double b)
+            {
+                return new RelativeValue(a.Relative*b);
+            }
+            public static RelativeValue operator *(double b, RelativeValue a)
+            {
+                return new RelativeValue(a.Relative * b);
+            }
+            public static RelativeValue operator /(RelativeValue a, double b)
+            {
+                return new RelativeValue(a.Relative / b);
             }
         }
         public class RelativeSquare
@@ -53,12 +74,12 @@ namespace NiconicoComment
             public RelativeSquare() { }
             public RelativeSquare(RelativeValue width, RelativeValue height) { this.Width = width;this.Height = height; }
             public RelativeSquare(double width, double height) { this.Width = new RelativeValue(width); this.Height = new RelativeValue(height); }
-            public RelativeSquare(double width, double height,Canvas canvas) { this.Width = new RelativeValue(width,canvas); this.Height = new RelativeValue(height, canvas); }
+            public RelativeSquare(double width, double height,ICanvas canvas) { this.Width = new RelativeValue(width,canvas); this.Height = new RelativeValue(height, canvas); }
 
             public RelativeValue Width = new RelativeValue();
             public RelativeValue Height = new RelativeValue();
         }
-        public interface Canvas
+        public interface ICanvas
         {
             void Init();
             double Width { get; }
@@ -70,7 +91,7 @@ namespace NiconicoComment
             Baseline Baseline { get; set; }
             void Done();
         }
-        public interface Video
+        public interface IVideo
         {
             double CurrentSecond { get; }
             double Duration { get; }
@@ -130,26 +151,19 @@ namespace NiconicoComment
 
         public double CommentDuration=5.0;
 
-        public static void SetFontSizeRelative(ref Canvas canvas,RelativeValue size)
-        {
-            canvas.FontSize = size.GetActual(canvas);
-        }
-
-        public static double GetRelativeSize(double ActualSize,Canvas canvas)
+        public static double GetRelativeSize(double ActualSize,ICanvas canvas)
         {
             return ActualSize * 855 / canvas.Width;
         }
-        public static double GetActualSize(double RelativeSize, Canvas canvas)
+        public static double GetActualSize(double RelativeSize, ICanvas canvas)
         {
             return RelativeSize / 855 * canvas.Width;
         }
 
-        public void Draw(Canvas canvas,Video video)
+        public void Draw(ICanvas canvas,IVideo video)
         {
             canvas.Init();
-            SetFontSizeRelative(ref canvas, FontSizeDefault);
             var time = video.CurrentSecond;
-            canvas.FontKind = FontKind.Default;
 
             var RangesTop = new List<Range>();
             var RangesBottom = new List<Range>();
@@ -159,6 +173,8 @@ namespace NiconicoComment
 
             foreach (var comment in Comments)
             {
+                canvas.FontKind = FontKind.Default;
+
                 var vpos = GetActualVpos(comment.Content.Vpos, video.Duration, commentDuration);
                 if (time - commentDuration >= vpos / 100.0 || vpos / 100.0 >= time) { continue; }
                 var mails = comment.Content.Mail.Split(' ');
@@ -168,28 +184,20 @@ namespace NiconicoComment
                 else if (ContainsCommand(mails, "small")) comment.FontSize = FontSizeSmall;
                 else if (ContainsCommand(mails, "big")) comment.FontSize = FontSizeBig;
                 else comment.FontSize = FontSizeDefault;
-                SetFontSizeRelative(ref canvas, comment.FontSize);
+
+                canvas.FontSize = comment.FontSize.GetActual(canvas);
                 var fontSizeActual = comment.FontSize.GetActual(canvas);
 
-                if (ContainsCommand(mails, "mincho"))
-                {
-                    canvas.FontKind = FontKind.Mincho;
-                }
-                else if (ContainsCommand(mails, "gothic"))
-                {
-                    canvas.FontKind = FontKind.Gothic;
-                }
-                else
-                {
-                    canvas.FontKind = FontKind.Default;
-                }
+                if (ContainsCommand(mails, "mincho")) canvas.FontKind = FontKind.Mincho;
+                else if (ContainsCommand(mails, "gothic")) canvas.FontKind = FontKind.Gothic;
+                else canvas.FontKind = FontKind.Default;
 
                 var r = new Coordinate();
 
                 var commentSize = new Size();
-                if (! comment.Size.Width.Unset)
+                if (!comment.Size.Width.Unset)
                 {
-                    commentSize = new Size(comment.Size.Width.GetActual( canvas), comment.Size.Height.GetActual(canvas));
+                    commentSize = new Size(comment.Size.Width.GetActual(canvas), comment.Size.Height.GetActual(canvas));
                 }
                 else
                 {
@@ -199,11 +207,12 @@ namespace NiconicoComment
 
                 if (ContainsCommand(mails, "ue") || ContainsCommand(mails, "shita"))
                 {
-                    if (commentSize.Width > canvas.Width)
+                    if (commentSize.Width > canvas.Width + 1)
                     {
-                        comment.FontSize.Relative *= canvas.Width / commentSize.Width;
+                        comment.FontSize *= canvas.Width / commentSize.Width;
                         comment.FontSize.Relative = Math.Max(comment.FontSize.Relative, GetRelativeSize(1, canvas));
-                        SetFontSizeRelative(ref canvas, comment.FontSize);
+                        canvas.FontSize = comment.FontSize.GetActual(canvas);
+                        fontSizeActual = comment.FontSize.GetActual(canvas);
 
                         commentSize = canvas.MeasureText(comment.Content);
                         comment.Size = new RelativeSquare(commentSize.Width, commentSize.Height, canvas);
@@ -267,7 +276,7 @@ namespace NiconicoComment
 
                     overFlow = FixOverflow(ref r.Y, canvas.Height,canvas);
 
-                    r.Y += fontSizeActual / 2.0;
+                    r.Y += FontSizeDefault.GetActual(canvas) / 2.0;
                     operatedComments.Add(comment);
                 }
                 var color = GetColorFromMail(comment.Content.Mail);
@@ -276,7 +285,7 @@ namespace NiconicoComment
             canvas.Done();
         }
 
-        public bool FixOverflow(ref double y,double canvasHeight,Canvas canvas)
+        public bool FixOverflow(ref double y,double canvasHeight,ICanvas canvas)
         {
             bool result = false;
             var modnum = canvasHeight - FontSizeDefault.GetActual(canvas);
@@ -365,7 +374,7 @@ namespace NiconicoComment
         }
 
         public Coordinate GetFromOperated(List<CommentInformation> operatedComments, CommentInformation currentComment,
-            double videoDuration,double commentDuration,double time,Canvas canvas,RelativeValue fontHeight)
+            double videoDuration,double commentDuration,double time,ICanvas canvas,RelativeValue fontHeight)
         {
             var canvasWidth = canvas.Width;
             var vpos1 = GetActualVpos(currentComment.Content.Vpos,videoDuration,commentDuration);
@@ -379,9 +388,9 @@ namespace NiconicoComment
                 var operatedWidth = operatedComment.Size.Width.GetActual(canvas);
 
                 var a = GetPositionX(vpos1, vpos2/100.0 + commentDuration, currentWidth, canvasWidth, commentDuration);
-                var b = GetPositionX(vpos2, vpos1 / 100.0, operatedWidth, canvasWidth, commentDuration)+operatedComment.Size.Width.GetActual(canvas);
+                var b = GetPositionX(vpos2, vpos1 / 100.0, operatedWidth, canvasWidth, commentDuration) + operatedWidth;
                 var c = GetPositionX(vpos2, vpos1 / 100.0 + commentDuration, operatedWidth, canvasWidth, commentDuration);
-                var d = GetPositionX(vpos1, vpos2 / 100.0, currentWidth, canvasWidth, commentDuration) + currentComment.Size.Width.GetActual(canvas);
+                var d = GetPositionX(vpos1, vpos2 / 100.0, currentWidth, canvasWidth, commentDuration) + currentWidth;
 
                 if(
                     CheckY(y,operatedComment.LastY.GetActual( canvas),fontHeight.GetActual(canvas))&&

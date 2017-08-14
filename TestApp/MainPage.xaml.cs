@@ -36,12 +36,16 @@ namespace TestApp
             var cmp = new CommentPresenter();
             cmp.Load("test.nicocomment");
 
-            var canvast = new CanvasTarget(canvas);
-            canvast.Fps = textBlockFps;
+            var canvast = new CanvasTarget(canvas)
+            {
+                Fps = textBlockFps
+            };
             var videot = new VideoTarget(mediaElement);
 
-            _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromSeconds(1.0 / 60);
+            _timer = new DispatcherTimer()
+            {
+                Interval = TimeSpan.FromSeconds(1.0 / 30)
+            };
             _timer.Tick += (f, e) =>
             {
                 cmp.Draw(canvast, videot);
@@ -57,7 +61,7 @@ namespace TestApp
 
         }
 
-        public class CanvasTarget : NiconicoComment.CommentPresenter.Canvas
+        public class CanvasTarget : NiconicoComment.CommentPresenter.ICanvas
         {
             private Dictionary<int, TextBlock> textBlocks = new Dictionary<int, TextBlock>();
             private Dictionary<int, TextBlock> textBlocksShadow = new Dictionary<int, TextBlock>();
@@ -168,12 +172,14 @@ namespace TestApp
 
             private TextBlock GetTextBlock(string text)
             {
-                var tb = new TextBlock();
-                tb.Text = text;
-                tb.FontSize = FontSize;
-                tb.FontFamily = new FontFamily("Arial");
-                tb.FontWeight = new Windows.UI.Text.FontWeight() { Weight= (ushort)600 };
-                tb.IsHitTestVisible = false;
+                var tb = new TextBlock()
+                {
+                    Text = text,
+                    FontSize = FontSize,
+                    FontFamily = new FontFamily("Arial"),
+                    FontWeight = new Windows.UI.Text.FontWeight() { Weight = (ushort)600 },
+                    IsHitTestVisible = false
+                };
                 return tb;
             }
 
@@ -204,7 +210,7 @@ namespace TestApp
             }
         }
 
-        public class VideoTarget : NiconicoComment.CommentPresenter.Video
+        public class VideoTarget : CommentPresenter.IVideo
         {
             public MediaPlayerElement Content { get; private set; }
 
