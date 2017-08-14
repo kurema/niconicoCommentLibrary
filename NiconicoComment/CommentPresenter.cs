@@ -84,6 +84,17 @@ namespace NiconicoComment
             Default,Mincho,Gothic
         }
 
+        public static double GetYOffsetFromBaseline(Baseline arg)
+        {
+            switch (arg)
+            {
+                case Baseline.Top:return 0;
+                case Baseline.Middle:return 0.5;
+                case Baseline.Bottom:return 1;
+                default:return 0;
+            }
+        }
+
         private CommentInformation[] Comments;
         private Comment[] CommentsLoaded;
 
@@ -106,6 +117,11 @@ namespace NiconicoComment
         public void Load(System.Xml.XmlReader xr)
         {
             Load(Comment.ParseXml(xr));
+        }
+
+        public void Load(System.IO.Stream sr)
+        {
+            Load(System.Xml.XmlReader.Create(sr));
         }
 
         public RelativeValue FontSizeDefault = new RelativeValue(30);

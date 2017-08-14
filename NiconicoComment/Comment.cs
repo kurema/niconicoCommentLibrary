@@ -12,6 +12,18 @@ namespace NiconicoComment
         public int Vpos;
         public string Mail;
 
+        public static async System.Threading.Tasks.Task<Comment[]> ParseXmlHttp(string uri)
+        {
+            var client = new System.Net.Http.HttpClient();
+            var stream = await client.GetStreamAsync(uri);
+            return ParseXml(stream);
+        }
+
+        public static Comment[] ParseXml(System.IO.Stream sr)
+        {
+            return ParseXml(System.Xml.XmlReader.Create(sr));
+        }
+
         public static Comment[] ParseXml(string uri)
         {
             return ParseXml(System.Xml.XmlReader.Create(uri));

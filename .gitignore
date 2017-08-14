@@ -290,3 +290,6 @@ __pycache__/
 # testfile
 *.mp4
 *.nicocomment
+
+#backup
+/bup/
