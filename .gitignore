@@ -293,3 +293,6 @@ __pycache__/
 
 #backup
 /bup/
+
+#external library
+/OpenNiconico2-master/

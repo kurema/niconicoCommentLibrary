@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using NiconicoComment.Primitive;
+using Niconico.Comment.Primitive;
 
-namespace NiconicoComment
+namespace Niconico.Comment
 {
     public class CommentBuffer : CommentPresenter.ICanvas
     {

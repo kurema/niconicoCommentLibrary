@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using NiconicoComment.Primitive;
+using Niconico.Comment.Primitive;
 
-namespace NiconicoComment
+namespace Niconico.Comment
 {
     public class CommentPresenter
     {
