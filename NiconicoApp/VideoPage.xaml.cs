@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Niconico.Comment;
-using Niconico.Comment.Primitive;
+using NicoNico.Comment;
+using NicoNico.Comment.Primitive;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -61,7 +61,7 @@ namespace NiconicoApp
 
         }
 
-        public class CanvasTarget : Niconico.Comment.CommentPresenter.ICanvas
+        public class CanvasTarget : NicoNico.Comment.CommentPresenter.ICanvas
         {
             private Dictionary<int, TextBlock> textBlocks = new Dictionary<int, TextBlock>();
             private Dictionary<int, TextBlock> textBlocksShadow = new Dictionary<int, TextBlock>();
@@ -162,12 +162,12 @@ namespace NiconicoApp
                 textBlocksOperated.Add(text.Count);
             }
 
-            public Niconico.Comment.Primitive.Size MeasureText(Comment comment)
+            public NicoNico.Comment.Primitive.Size MeasureText(Comment comment)
             {
                 var tb = GetTextBlock(comment.Text);
                 tb.Measure(new Windows.Foundation.Size(double.MaxValue, double.MaxValue));
                 if (!textBlocks.ContainsKey(comment.Count)) textBlocks.Add(comment.Count, tb);
-                return new Niconico.Comment.Primitive.Size(tb.ActualWidth, tb.ActualHeight);
+                return new NicoNico.Comment.Primitive.Size(tb.ActualWidth, tb.ActualHeight);
             }
 
             private TextBlock GetTextBlock(string text)

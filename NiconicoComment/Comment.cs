@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Niconico.Comment
+namespace NicoNico.Comment
 {
     public class Comment
     {

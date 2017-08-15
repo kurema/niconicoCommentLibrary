@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Niconico.Comment.Primitive
+namespace NicoNico.Comment.Primitive
 {
     public class Range
     {
