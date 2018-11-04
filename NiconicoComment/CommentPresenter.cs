@@ -82,8 +82,8 @@ namespace NicoNico.Comment
         public interface ICanvas
         {
             void Init();
-            double Width { get; }
-            double Height { get; }
+            double CanvasWidth { get; }
+            double CanvasHeight { get; }
             FontKind FontKind { get; set; }
             double FontSize { get; set; }
             Size MeasureText(Comment comment);
@@ -153,11 +153,11 @@ namespace NicoNico.Comment
 
         public static double GetRelativeSize(double ActualSize,ICanvas canvas)
         {
-            return ActualSize * 855 / canvas.Width;
+            return ActualSize * 855 / canvas.CanvasWidth;
         }
         public static double GetActualSize(double RelativeSize, ICanvas canvas)
         {
-            return RelativeSize / 855 * canvas.Width;
+            return RelativeSize / 855 * canvas.CanvasWidth;
         }
 
         public void Draw(ICanvas canvas,IVideo video)
@@ -207,9 +207,9 @@ namespace NicoNico.Comment
 
                 if (ContainsCommand(mails, "ue") || ContainsCommand(mails, "shita"))
                 {
-                    if (commentSize.Width > canvas.Width + 1)
+                    if (commentSize.Width > canvas.CanvasWidth + 1)
                     {
-                        comment.FontSize *= canvas.Width / commentSize.Width;
+                        comment.FontSize *= canvas.CanvasWidth / commentSize.Width;
                         comment.FontSize.Relative = Math.Max(comment.FontSize.Relative, GetRelativeSize(1, canvas));
                         canvas.FontSize = comment.FontSize.GetActual(canvas);
                         fontSizeActual = comment.FontSize.GetActual(canvas);
@@ -222,7 +222,7 @@ namespace NicoNico.Comment
                 bool overFlow = false;
                 if (ContainsCommand(mails, "ue"))
                 {
-                    r = new Coordinate(canvas.Width / 2.0 - commentSize.Width / 2.0, Math.Max(0, comment.LastY.GetActual(canvas)));
+                    r = new Coordinate(canvas.CanvasWidth / 2.0 - commentSize.Width / 2.0, Math.Max(0, comment.LastY.GetActual(canvas)));
                     var changed = false;
                     while(! CheckRanges(RangesTop,new Range(r.Y, r.Y + fontSizeActual)))
                     {
@@ -241,11 +241,11 @@ namespace NicoNico.Comment
                     comment.LastY = new RelativeValue(r.Y, canvas);
                     RangesTop.Add(new Range(r.Y, r.Y + fontSizeActual));
 
-                    overFlow = FixOverflow(ref r.Y, canvas.Height,canvas);
+                    overFlow = FixOverflow(ref r.Y, canvas.CanvasHeight,canvas);
                 }
                 else if (ContainsCommand(mails, "shita"))
                 {
-                    r = new Coordinate(canvas.Width / 2.0 - commentSize.Width / 2.0, Math.Max(0, comment.LastY.GetActual(canvas)));
+                    r = new Coordinate(canvas.CanvasWidth / 2.0 - commentSize.Width / 2.0, Math.Max(0, comment.LastY.GetActual(canvas)));
                     var changed = false;
                     while (!CheckRanges(RangesBottom, new Range(r.Y, r.Y + fontSizeActual)))
                     {
@@ -264,9 +264,9 @@ namespace NicoNico.Comment
                     comment.LastY = new RelativeValue(r.Y, canvas);
                     RangesBottom.Add(new Range(r.Y, r.Y + fontSizeActual));
 
-                    overFlow = FixOverflow(ref r.Y, canvas.Height,canvas);
+                    overFlow = FixOverflow(ref r.Y, canvas.CanvasHeight,canvas);
 
-                    r.Y = canvas.Height - r.Y;
+                    r.Y = canvas.CanvasHeight - r.Y;
                 }
                 else
                 {
@@ -274,7 +274,7 @@ namespace NicoNico.Comment
                     comment.LastY = new RelativeValue(r.Y, canvas);
                     canvas.Baseline = Baseline.Middle;
 
-                    overFlow = FixOverflow(ref r.Y, canvas.Height,canvas);
+                    overFlow = FixOverflow(ref r.Y, canvas.CanvasHeight,canvas);
 
                     r.Y += FontSizeDefault.GetActual(canvas) / 2.0;
                     operatedComments.Add(comment);
@@ -376,7 +376,7 @@ namespace NicoNico.Comment
         public Coordinate GetFromOperated(List<CommentInformation> operatedComments, CommentInformation currentComment,
             double videoDuration,double commentDuration,double time,ICanvas canvas,RelativeValue fontHeight)
         {
-            var canvasWidth = canvas.Width;
+            var canvasWidth = canvas.CanvasWidth;
             var vpos1 = GetActualVpos(currentComment.Content.Vpos,videoDuration,commentDuration);
             var y = Math.Max(0, currentComment.LastY.GetActual(canvas));
             var firstCollision = true;

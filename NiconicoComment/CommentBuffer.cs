@@ -32,9 +32,9 @@ namespace NicoNico.Comment
 
         public ICanvasBuffered Content { get; set; }
 
-        public double Width => Content.Width;
+        public double CanvasWidth => Content.Width;
 
-        public double Height => Content.Height;
+        public double CanvasHeight => Content.Height;
 
         public CommentPresenter.FontKind FontKind { get; set; }
         public double FontSize { get; set; }
